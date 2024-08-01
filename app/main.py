@@ -4,6 +4,8 @@ from typing import Optional
 from fastapi import FastAPI, Path
 from pydantic import BaseModel
 
+from app.schemas.schemas import EmployeeRequest
+
 app = FastAPI()
 
 
@@ -20,14 +22,6 @@ class Employee:
         self.last_name = last_name
         self.phone_number = phone_number
         self.address = address
-
-
-class EmployeeRequest(BaseModel):
-    id: Optional[int] = None
-    first_name: str
-    last_name: str
-    phone_number: str
-    address: str
 
 
 class Kids:

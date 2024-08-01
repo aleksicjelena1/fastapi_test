@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-import models
+from app.db import database
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -17,9 +17,9 @@ fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-# from myapp import mymodel
+from app.db.models import Employees
 # target_metadata = mymodel.Base.metadata
-target_metadata = models.Base.metadata
+target_metadata = database.Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

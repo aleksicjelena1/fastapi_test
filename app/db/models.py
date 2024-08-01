@@ -1,5 +1,5 @@
-from database import Base
-from sqlalchemy import Column, Integer, String, Boolean
+from app.db.database import Base
+from sqlalchemy import Column, Integer, String
 
 
 class Employees(Base):

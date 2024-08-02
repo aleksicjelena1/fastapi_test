@@ -4,39 +4,14 @@ from fastapi import Path, APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
 
-from app import db
-from app.db.database import SessionLocal, get_db
+from app.db.database import get_db
 from app.db.models import Employees
-from app.schemas import employees
 from app.schemas.employees import GetEmployee, CreateEmployee, UpdateEmployee
 
 router = APIRouter(
     prefix="/employee",
     tags=["employee"]
 )
-
-
-class Employee:
-    id: int
-    first_name: str
-    last_name: str
-    phone_number: str
-    address: str
-
-    def __init__(self, id, first_name, last_name, phone_number, address):
-        self.id = id
-        self.first_name = first_name
-        self.last_name = last_name
-        self.phone_number = phone_number
-        self.address = address
-
-
-EMPLOYEES = [
-    Employee(1, 'Stefan', 'Cosic', '065111222', 'Milosa Obilica'),
-    Employee(2, 'Zeljana', 'Timarac', '065222333', 'Rajka Bosnica'),
-    Employee(3, 'Jelena', 'Aleksic', '065333444', 'Milesevska')
-]
-
 
 db_dependency = Annotated[Session, Depends(get_db)]
 

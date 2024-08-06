@@ -13,7 +13,7 @@ def employees_builder():
         employee = Employees(
             first_name=f'Test {i}',
             last_name=f'User {i}',
-            phone_number=f'1223',
+            phone_number=f'Number {i}',
             address=f'Address {i}'
         )
         db.add(employee)
@@ -33,7 +33,10 @@ def test_read_all_employees(employees_builder):
 def test_read_one_employees(employees_builder):
     response = client.get("/employee/1")
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()) == 5
+    assert response.json().get("first_name") == "Test 0"
+    assert response.json().get("last_name") == "User 0"
+    assert response.json().get("phone_number") == "Number 0"
+    assert response.json().get("address") == "Address 0"
 
 
 def test_read_one_not_found(employees_builder):

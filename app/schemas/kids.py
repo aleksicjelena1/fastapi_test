@@ -27,4 +27,4 @@ class CreateKid(BaseKid):
 
 
 class UpdateKid(BaseKid):
-    pass
+    group_id: int = None

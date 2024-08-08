@@ -12,7 +12,8 @@ class Employees(Base):
     last_name = Column(String)
     phone_number = Column(String)
     address = Column(String)
-    groups = relationship("Groups", back_populates="employee")
+    group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
+    group = relationship("Groups", back_populates="employees")
 
 
 class Kids(Base):
@@ -24,7 +25,8 @@ class Kids(Base):
     father_name = Column(String)
     date_of_enrollment = Column(String)
     gender = Column(String)
-    groups = relationship("Groups", back_populates="kid")
+    group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
+    group = relationship("Groups", back_populates="kids")
 
 
 class Groups(Base):
@@ -32,7 +34,5 @@ class Groups(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
-    employee_id = Column(Integer, ForeignKey("employees.id"))
-    employee = relationship("Employees", back_populates="groups")
-    kids_id = Column(Integer, ForeignKey("kids.id"))
-    kid = relationship("Kids", back_populates='groups')
+    employees = relationship("Employees", back_populates="group")
+    kids = relationship("Kids", back_populates='group')

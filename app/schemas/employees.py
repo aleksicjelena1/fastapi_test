@@ -19,4 +19,4 @@ class CreateEmployee(BaseEmployee):
 
 
 class UpdateEmployee(BaseEmployee):
-    pass
+    group_id: int = None

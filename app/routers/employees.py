@@ -53,6 +53,7 @@ async def update_employee(db: db_dependency, employee_request: UpdateEmployee, e
     employee_model.last_name = employee_request.last_name
     employee_model.phone_number = employee_request.phone_number
     employee_model.address = employee_request.address
+    employee_model.group_id = employee_request.group_id
 
     db.add(employee_model)
     db.commit()

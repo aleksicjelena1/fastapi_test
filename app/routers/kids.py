@@ -54,6 +54,7 @@ async def update_kid(db: db_dependency, kid_request: UpdateKid, kid_id: int = Pa
     kid_model.father_name = kid_request.father_name
     kid_model.date_of_enrollment = kid_request.date_of_enrollment
     kid_model.gender = kid_request.gender
+    kid_model.group_id = kid_request.group_id
 
     db.add(kid_model)
     db.commit()

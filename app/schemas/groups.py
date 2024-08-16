@@ -5,17 +5,21 @@ from pydantic import BaseModel, Field
 
 class BaseGroup(BaseModel):
     name: str = Field(min_length=3)
-    employee: str = Field(min_length=3)
-    kids: list[str]
+    employee: str = None
+    kids: list[str] = None
 
 
 class GetGroup(BaseGroup):
     pass
 
 
-class CreateGroup(BaseGroup):
-    pass
+class CreateGroup(BaseModel):
+    name: str = Field(min_length=3)
 
 
-class UpdateGroup(BaseGroup):
-    pass
+class UpdateGroup(BaseModel):
+    employee_id: int
+
+
+class UpdateGroupKids(BaseModel):
+    kids_ids: list[int]

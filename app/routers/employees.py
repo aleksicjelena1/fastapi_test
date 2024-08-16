@@ -22,6 +22,7 @@ async def read_all_employees(db: db_dependency):
     return list_employees
 
 
+
 @router.get("/{employee_id}", response_model=GetEmployee, status_code=status.HTTP_200_OK)
 async def read_employee(db: db_dependency, employee_id: int = Path(gt=0)):
     employee_model = db.query(Employees).filter(Employees.id == employee_id).first()

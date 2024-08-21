@@ -1,8 +1,9 @@
 from fastapi import status
 
 from app.db.models import Kids
-from tests.conftest import TestingSessionLocal, engine, client
+from tests.conftest import TestingSessionLocal, client
 from tests.utils import kids_builder
+
 
 def test_read_all_kids(kids_builder):
     response = client.get("/kid")

@@ -10,7 +10,7 @@ class BaseGroup(BaseModel):
 
 
 class GetGroup(BaseGroup):
-    pass
+    id: int
 
 
 class CreateGroup(BaseModel):

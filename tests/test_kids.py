@@ -1,29 +1,8 @@
-import pytest
-from sqlalchemy import text
 from fastapi import status
 
 from app.db.models import Kids
 from tests.conftest import TestingSessionLocal, engine, client
-
-
-@pytest.fixture
-def kids_builder(kid=None):
-    db = TestingSessionLocal()
-    for i in range(3):
-        kid = Kids(
-            first_name=f'Test {i}',
-            last_name=f'User {i}',
-            father_name=f'Name {i}',
-            date_of_enrollment=f'Date {i}',
-            gender='m'
-        )
-        db.add(kid)
-        db.commit()
-    yield kid
-    with engine.connect() as connection:
-        connection.execute(text("DELETE FROM kids;"))
-        connection.commit()
-
+from tests.utils import kids_builder
 
 def test_read_all_kids(kids_builder):
     response = client.get("/kid")

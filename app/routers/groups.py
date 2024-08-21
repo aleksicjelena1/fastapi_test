@@ -6,7 +6,6 @@ from starlette import status
 
 from app.db.database import get_db
 from app.db.models import Employees, Groups, Kids
-from app.schemas import employees
 from app.schemas.groups import GetGroup, CreateGroup, UpdateGroup, UpdateGroupKids
 
 router = APIRouter(
@@ -132,7 +131,7 @@ async def update_group_kid(db: db_dependency, group_id: int, group_request: Upda
     return GetGroup(
         id=group_model.id,
         name=group_model.name,
-        employee=f"{employee.first_name} {employee.last_name}",
+        employee=f"{employee.first_name} {employee.last_name}" if employee else "",
         kids=[f"{kid.first_name} {kid.last_name}" for kid in kid_model]
     )
 

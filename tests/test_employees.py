@@ -1,27 +1,8 @@
-import pytest
-from sqlalchemy import text
 from fastapi import status
 
 from app.db.models import Employees
-from tests.conftest import TestingSessionLocal, engine, client
-
-
-@pytest.fixture
-def employees_builder():
-    db = TestingSessionLocal()
-    for i in range(3):
-        employee = Employees(
-            first_name=f'Test {i}',
-            last_name=f'User {i}',
-            phone_number=f'Number {i}',
-            address=f'Address {i}'
-        )
-        db.add(employee)
-        db.commit()
-    yield employee
-    with engine.connect() as connection:
-        connection.execute(text("DELETE FROM employees;"))
-        connection.commit()
+from tests.conftest import TestingSessionLocal, client
+from tests.utils import employees_builder
 
 
 def test_read_all_employees(employees_builder):

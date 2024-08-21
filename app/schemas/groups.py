@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -10,7 +8,7 @@ class BaseGroup(BaseModel):
 
 
 class GetGroup(BaseGroup):
-    pass
+    id: int
 
 
 class CreateGroup(BaseModel):

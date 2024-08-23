@@ -1,8 +1,33 @@
 import pytest
 from sqlalchemy import text
 
-from app.db.models import Groups, Employees, Kids, Users
-from tests.conftest import TestingSessionLocal, engine
+from app.db.models import Groups, Employees, Kids, Users, Parents
+from tests.conftest import TestingSessionLocal, engine, client
+
+
+@pytest.fixture()
+def get_access_token():
+    # create data for user
+    request_data = {
+        "username": "testuser",
+        "email": "testuser@example.com",
+        "first_name": "Test",
+        "last_name": "User",
+        "password": "testpassword",
+        "role": "admin"
+    }
+
+    client.post('/auth/create_user', json=request_data)
+    # get access token
+    response = client.post('/auth/token', data={
+        "username": request_data["username"],
+        "password": request_data["password"]
+    })
+    response_data = response.json()
+    yield response_data.get("access_token")
+    with engine.connect() as connection:
+        connection.execute(text("DELETE FROM users;"))
+        connection.commit()
 
 
 @pytest.fixture
@@ -55,20 +80,20 @@ def kids_builder():
         connection.commit()
 
 
-@pytest.fixture()
-def user_builder():
+@pytest.fixture
+def parents_builder():
     db = TestingSessionLocal()
-    user = Users(
-        username=f'Test 0',
-        email=f'Test 0',
-        first_name='Test 0',
-        last_name='Test 0',
-        is_active=True,
-        role=''
-    )
-    db.add(user)
-    db.commit()
-    yield user
+    for i in range(3):
+        parent = Parents(
+            first_name=f'Test {i}',
+            last_name=f'User {i}',
+            email=f'test {i}',
+            phone_number=f'Number {i}',
+            address=f'Address {i}'
+        )
+        db.add(parent)
+        db.commit()
+    yield parent
     with engine.connect() as connection:
-        connection.execute(text("DELETE FROM users;"))
+        connection.execute(text("DELETE FROM parents;"))
         connection.commit()

@@ -2,13 +2,23 @@ from starlette import status
 
 from app.db.models import Groups
 from tests.conftest import client, TestingSessionLocal
-from tests.utils import groups_builder, employees_builder, kids_builder
+from tests.utils import groups_builder, employees_builder, kids_builder, get_access_token
 
 
-def test_read_all_groups(groups_builder):
-    response = client.get("/group")
+def test_read_all_groups(groups_builder, get_access_token):
+    response = client.get(
+        "/group",
+        headers={
+            "Authorization": f"Bearer {get_access_token}"
+        }
+    )
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()) == 3
+
+
+def test_read_all_groups_not_authorized(groups_builder):
+    response = client.get("/group")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
 def test_read_one_group(groups_builder):

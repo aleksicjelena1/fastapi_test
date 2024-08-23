@@ -30,6 +30,7 @@ async def read_all_groups(user: user_dependency, db: db_dependency):
         employee = db.query(Employees).filter(Employees.group_id == group.id).first()
         kids_list = db.query(Kids).filter(Kids.group_id == group.id).all()
         group_schema = GetGroup(
+            id=group.id,
             name=group.name,
             employee=f"{employee.first_name} {employee.last_name}" if employee else "",
             kids=[f"{kid.first_name} {kid.last_name}" for kid in kids_list] if kids_list else []
@@ -53,6 +54,7 @@ async def read_group_by_id(user: user_dependency, db: db_dependency, group_id: i
     employee = db.query(Employees).filter(Employees.group_id == group_id).first()
     kids_list = db.query(Kids).filter(Kids.group_id == group_id).all()
     group_schema = GetGroup(
+        id=db_group.id,
         name=db_group.name,
         employee=f"{employee.first_name} {employee.last_name}" if employee else "",
         kids=[f"{kid.first_name} {kid.last_name}" for kid in kids_list] if kids_list else []
@@ -73,6 +75,7 @@ async def read_group_by_name(user: user_dependency, db: db_dependency, group_nam
     employee = db.query(Employees).filter(Employees.group_id == db_group.id).first()
     kids_list = db.query(Kids).filter(Kids.group_id == db_group.id).all()
     group_schema = GetGroup(
+        id=db_group.id,
         name=db_group.name,
         employee=f"{employee.first_name} {employee.last_name}" if employee else "",
         kids=[f"{kid.first_name} {kid.last_name}" for kid in kids_list] if kids_list else []

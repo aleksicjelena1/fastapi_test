@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: 076a7db52351
+Revision ID: 64c47d5102c3
 Revises: 
-Create Date: 2024-08-08 12:22:54.512021
+Create Date: 2024-08-23 14:26:52.336616
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '076a7db52351'
+revision: str = '64c47d5102c3'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,6 +26,31 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_groups_id'), 'groups', ['id'], unique=False)
+    op.create_table('parents',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('first_name', sa.String(), nullable=True),
+    sa.Column('last_name', sa.String(), nullable=True),
+    sa.Column('email', sa.String(), nullable=True),
+    sa.Column('phone_number', sa.String(), nullable=True),
+    sa.Column('address', sa.String(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email')
+    )
+    op.create_index(op.f('ix_parents_id'), 'parents', ['id'], unique=False)
+    op.create_table('users',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('email', sa.String(), nullable=True),
+    sa.Column('username', sa.String(), nullable=True),
+    sa.Column('first_name', sa.String(), nullable=True),
+    sa.Column('last_name', sa.String(), nullable=True),
+    sa.Column('hashed_password', sa.String(), nullable=True),
+    sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('role', sa.String(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('username')
+    )
+    op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_table('employees',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('first_name', sa.String(), nullable=True),
@@ -45,7 +70,9 @@ def upgrade() -> None:
     sa.Column('date_of_enrollment', sa.String(), nullable=True),
     sa.Column('gender', sa.String(), nullable=True),
     sa.Column('group_id', sa.Integer(), nullable=True),
+    sa.Column('parent_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['group_id'], ['groups.id'], ),
+    sa.ForeignKeyConstraint(['parent_id'], ['parents.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_kids_id'), 'kids', ['id'], unique=False)
@@ -58,6 +85,10 @@ def downgrade() -> None:
     op.drop_table('kids')
     op.drop_index(op.f('ix_employees_id'), table_name='employees')
     op.drop_table('employees')
+    op.drop_index(op.f('ix_users_id'), table_name='users')
+    op.drop_table('users')
+    op.drop_index(op.f('ix_parents_id'), table_name='parents')
+    op.drop_table('parents')
     op.drop_index(op.f('ix_groups_id'), table_name='groups')
     op.drop_table('groups')
     # ### end Alembic commands ###

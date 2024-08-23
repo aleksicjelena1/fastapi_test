@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import text
 
-from app.db.models import Groups, Employees, Kids
+from app.db.models import Groups, Employees, Kids, Users
 from tests.conftest import TestingSessionLocal, engine
 
 
@@ -52,4 +52,23 @@ def kids_builder():
     yield kid
     with engine.connect() as connection:
         connection.execute(text("DELETE FROM kids;"))
+        connection.commit()
+
+
+@pytest.fixture()
+def user_builder():
+    db = TestingSessionLocal()
+    user = Users(
+        username=f'Test 0',
+        email=f'Test 0',
+        first_name='Test 0',
+        last_name='Test 0',
+        is_active=True,
+        role=''
+    )
+    db.add(user)
+    db.commit()
+    yield user
+    with engine.connect() as connection:
+        connection.execute(text("DELETE FROM users;"))
         connection.commit()

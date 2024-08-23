@@ -26,6 +26,8 @@ class Kids(Base):
     gender = Column(String)
     group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
     group = relationship("Groups", back_populates="kids")
+    parent_id = Column(Integer, ForeignKey("parents.id"), nullable=True)
+    parent = relationship("Parents", back_populates="kids")
 
 
 class Groups(Base):
@@ -48,3 +50,15 @@ class Users(Base):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
     role = Column(String)
+
+
+class Parents(Base):
+    __tablename__ = 'parents'
+
+    id = Column(Integer, primary_key=True, index=True)
+    first_name = Column(String)
+    last_name = Column(String)
+    email = Column(String, unique=True)
+    phone_number = Column(String)
+    address = Column(String)
+    kids = relationship("Kids", back_populates="parent")

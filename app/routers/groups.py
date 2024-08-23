@@ -6,6 +6,7 @@ from starlette import status
 
 from app.db.database import get_db
 from app.db.models import Employees, Groups, Kids
+from app.routers.auth import get_current_user
 from app.schemas.groups import GetGroup, CreateGroup, UpdateGroup, UpdateGroupKids
 
 router = APIRouter(
@@ -14,10 +15,13 @@ router = APIRouter(
 )
 
 db_dependency = Annotated[Session, Depends(get_db)]
+user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[GetGroup])
-async def read_all_groups(db: db_dependency):
+async def read_all_groups(user: user_dependency, db: db_dependency):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
     list_groups = []
     db_groups = db.query(Groups).all()
     # dobijamo listu tabele Groups db_groups = [ id=1, name=Bubamarice, id=2, name=Tigrici ...]
@@ -37,7 +41,10 @@ async def read_all_groups(db: db_dependency):
 
 
 @router.get("/id/{group_id}", response_model=GetGroup, status_code=status.HTTP_200_OK)
-async def read_group_by_id(db: db_dependency, group_id: int = Path(gt=0)):
+async def read_group_by_id(user: user_dependency, db: db_dependency, group_id: int = Path(gt=0)):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     db_group = db.query(Groups).filter(Groups.id == group_id).first()
 
     if db_group is None:
@@ -54,7 +61,10 @@ async def read_group_by_id(db: db_dependency, group_id: int = Path(gt=0)):
 
 
 @router.get("/name/{group_name}", response_model=GetGroup, status_code=status.HTTP_200_OK)
-async def read_group_by_name(db: db_dependency, group_name: str):
+async def read_group_by_name(user: user_dependency, db: db_dependency, group_name: str):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     db_group = db.query(Groups).filter(Groups.name == group_name).first()
 
     if db_group is None:
@@ -71,8 +81,10 @@ async def read_group_by_name(db: db_dependency, group_name: str):
 
 
 @router.post("/create_group", response_model=GetGroup, status_code=status.HTTP_201_CREATED)
-async def create_group(db: db_dependency, group_request: CreateGroup):
+async def create_group(user: user_dependency, db: db_dependency, group_request: CreateGroup):
     try:
+        if user is None:
+            raise HTTPException(status_code=401, detail='Authentication Failed.')
         group_model = Groups(name=group_request.name)
         db.add(group_model)
         db.commit()
@@ -87,7 +99,10 @@ async def create_group(db: db_dependency, group_request: CreateGroup):
 
 
 @router.patch("/employee/{group_id}", response_model=GetGroup, status_code=status.HTTP_200_OK)
-async def update_group_employee(db: db_dependency, group_id: int, group_request: UpdateGroup):
+async def update_group_employee(user: user_dependency, db: db_dependency, group_id: int, group_request: UpdateGroup):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     group_model = db.query(Groups).filter(Groups.id == group_id).first()
     if group_model is None:
         raise HTTPException(status_code=404, detail='Group not found.')
@@ -110,7 +125,10 @@ async def update_group_employee(db: db_dependency, group_id: int, group_request:
 
 
 @router.patch("/kids/{group_id}", response_model=GetGroup, status_code=status.HTTP_200_OK)
-async def update_group_kid(db: db_dependency, group_id: int, group_request: UpdateGroupKids):
+async def update_group_kid(user: user_dependency, db: db_dependency, group_id: int, group_request: UpdateGroupKids):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     group_model = db.query(Groups).filter(Groups.id == group_id).first()
     if group_model is None:
         raise HTTPException(status_code=404, detail='Group not found.')
@@ -137,7 +155,10 @@ async def update_group_kid(db: db_dependency, group_id: int, group_request: Upda
 
 
 @router.delete("/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_group(db: db_dependency, group_id: int = Path(gt=0)):
+async def delete_group(user: user_dependency, db: db_dependency, group_id: int = Path(gt=0)):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     group_model = db.query(Groups).filter(Groups.id == group_id).first()
     if group_model is None:
         raise HTTPException(status_code=404, detail='Group not found.')

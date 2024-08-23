@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import employees, groups
+from app.routers import employees, groups, auth, admin, users
 from app.routers import kids
 
 app = FastAPI()
@@ -8,8 +8,6 @@ app = FastAPI()
 app.include_router(employees.router)
 app.include_router(kids.router)
 app.include_router(groups.router)
-
-
-@app.get("/healthy")
-def health_check():
-    return {'status': 'Healthy'}
+app.include_router(auth.router)
+app.include_router(admin.router)
+app.include_router(users.router)

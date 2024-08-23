@@ -6,6 +6,7 @@ from starlette import status
 
 from app.db.database import get_db
 from app.db.models import Employees
+from app.routers.auth import get_current_user
 from app.schemas.employees import GetEmployee, CreateEmployee, UpdateEmployee
 
 router = APIRouter(
@@ -14,17 +15,22 @@ router = APIRouter(
 )
 
 db_dependency = Annotated[Session, Depends(get_db)]
+user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[GetEmployee])
-async def read_all_employees(db: db_dependency):
+async def read_all_employees(user: user_dependency, db: db_dependency):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
     list_employees = db.query(Employees).all()
     return list_employees
 
 
-
 @router.get("/{employee_id}", response_model=GetEmployee, status_code=status.HTTP_200_OK)
-async def read_employee(db: db_dependency, employee_id: int = Path(gt=0)):
+async def read_employee(user: user_dependency, db: db_dependency, employee_id: int = Path(gt=0)):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     employee_model = db.query(Employees).filter(Employees.id == employee_id).first()
     if employee_model is not None:
         return employee_model
@@ -32,8 +38,10 @@ async def read_employee(db: db_dependency, employee_id: int = Path(gt=0)):
 
 
 @router.post("/create_employee", response_model=GetEmployee, status_code=status.HTTP_201_CREATED)
-async def create_employee(db: db_dependency, employee_request: CreateEmployee):
+async def create_employee(user: user_dependency, db: db_dependency, employee_request: CreateEmployee):
     try:
+        if user is None:
+            raise HTTPException(status_code=401, detail='Authentication Failed.')
         employee_model = Employees(**employee_request.dict())
 
         db.add(employee_model)
@@ -45,7 +53,10 @@ async def create_employee(db: db_dependency, employee_request: CreateEmployee):
 
 
 @router.put("/{employee_id}", response_model=GetEmployee, status_code=status.HTTP_200_OK)
-async def update_employee(db: db_dependency, employee_request: UpdateEmployee, employee_id: int = Path(gt=0)):
+async def update_employee(user: user_dependency, db: db_dependency, employee_request: UpdateEmployee, employee_id: int = Path(gt=0)):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     employee_model = db.query(Employees).filter(Employees.id == employee_id).first()
     if employee_model is None:
         raise HTTPException(status_code=404, detail='Employee not found.')
@@ -62,7 +73,10 @@ async def update_employee(db: db_dependency, employee_request: UpdateEmployee, e
 
 
 @router.delete("/{employee_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_employee(db: db_dependency, employee_id: int = Path(gt=0)):
+async def delete_employee(user: user_dependency, db: db_dependency, employee_id: int = Path(gt=0)):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     employee_model = db.query(Employees).filter(Employees.id == employee_id).first()
     if employee_model is None:
         raise HTTPException(status_code=404, detail='Employee not found.')

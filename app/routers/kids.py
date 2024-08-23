@@ -6,6 +6,7 @@ from starlette import status
 
 from app.db.database import get_db
 from app.db.models import Kids
+from app.routers.auth import get_current_user
 from app.schemas.kids import GetKid, CreateKid, UpdateKid
 
 router = APIRouter(
@@ -14,16 +15,22 @@ router = APIRouter(
 )
 
 db_dependency = Annotated[Session, Depends(get_db)]
+user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[GetKid])
-async def read_all_kids(db: db_dependency):
+async def read_all_kids(user: user_dependency, db: db_dependency):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
     list_kids = db.query(Kids).all()
     return list_kids
 
 
 @router.get("/{kid_id}", response_model=GetKid, status_code=status.HTTP_200_OK)
-async def read_kid(db: db_dependency, kid_id: int = Path(gt=0)):
+async def read_kid(user: user_dependency, db: db_dependency, kid_id: int = Path(gt=0)):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     kid_model = db.query(Kids).filter(Kids.id == kid_id).first()
     if kid_model is not None:
         return kid_model
@@ -31,8 +38,10 @@ async def read_kid(db: db_dependency, kid_id: int = Path(gt=0)):
 
 
 @router.post("/create_kid", response_model=GetKid, status_code=status.HTTP_201_CREATED)
-async def create_kid(db: db_dependency, kid_request: CreateKid):
+async def create_kid(user: user_dependency, db: db_dependency, kid_request: CreateKid):
     try:
+        if user is None:
+            raise HTTPException(status_code=401, detail='Authentication Failed.')
         kid_model = Kids(**kid_request.dict())
 
         db.add(kid_model)
@@ -44,7 +53,10 @@ async def create_kid(db: db_dependency, kid_request: CreateKid):
 
 
 @router.put("/{kid_id}", response_model=GetKid, status_code=status.HTTP_200_OK)
-async def update_kid(db: db_dependency, kid_request: UpdateKid, kid_id: int = Path(gt=0)):
+async def update_kid(user: user_dependency, db: db_dependency, kid_request: UpdateKid, kid_id: int = Path(gt=0)):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     kid_model = db.query(Kids).filter(Kids.id == kid_id).first()
     if kid_model is None:
         raise HTTPException(status_code=404, detail='Kid not found.')
@@ -62,7 +74,10 @@ async def update_kid(db: db_dependency, kid_request: UpdateKid, kid_id: int = Pa
 
 
 @router.delete("/{kid_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_kid(db: db_dependency, kid_id: int = Path(gt=0)):
+async def delete_kid(user: user_dependency, db: db_dependency, kid_id: int = Path(gt=0)):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     kid_model = db.query(Kids).filter(Kids.id == kid_id).first()
     if kid_model is None:
         raise HTTPException(status_code=404, detail='Kid not found.')

@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker
 
-from app.db.database import Base, get_db
+from app.db.database import Base, get_db, SessionLocal
 from app.main import app
 from fastapi.testclient import TestClient
 

@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import text
 
-from app.db.models import Groups, Employees, Kids, Users, Parents
+from app.db.models import Groups, Employees, Kids, Parents
 from tests.conftest import TestingSessionLocal, engine, client
 
 

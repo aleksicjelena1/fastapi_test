@@ -18,7 +18,7 @@ def test_read_all_employees_not_authorized(employees_builder):
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_read_one_employees(employees_builder, get_access_token):
+def test_read_employee(employees_builder, get_access_token):
     response = client.get("/employee/1", headers={
             "Authorization": f"Bearer {get_access_token}"
         })
@@ -29,7 +29,7 @@ def test_read_one_employees(employees_builder, get_access_token):
     assert response.json().get("address") == "Address 0"
 
 
-def test_read_one_employees_not_authorized(employees_builder):
+def test_read_employee_not_authorized(employees_builder):
     response = client.get("/employee/1")
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -150,5 +150,5 @@ def test_delete_employee_not_found(employees_builder, get_access_token):
 
 
 def test_delete_employee_not_found_not_authorized(employees_builder):
-    response = client.get("/employee/999")
+    response = client.delete("/employee/999")
     assert response.status_code == status.HTTP_401_UNAUTHORIZED

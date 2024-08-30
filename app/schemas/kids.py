@@ -23,7 +23,7 @@ class GetKid(BaseKid):
 
 
 class CreateKid(BaseKid):
-    pass
+    parent_id: int
 
 
 class UpdateKid(BaseKid):

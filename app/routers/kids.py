@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from app.db.database import get_db
-from app.db.models import Kids
+from app.db.models import Kids, Parents
 from app.routers.auth import get_current_user
 from app.schemas.kids import GetKid, CreateKid, UpdateKid
 
@@ -39,17 +39,19 @@ async def read_kid(user: user_dependency, db: db_dependency, kid_id: int = Path(
 
 @router.post("/create_kid", response_model=GetKid, status_code=status.HTTP_201_CREATED)
 async def create_kid(user: user_dependency, db: db_dependency, kid_request: CreateKid):
-    try:
-        if user is None:
-            raise HTTPException(status_code=401, detail='Authentication Failed.')
-        kid_model = Kids(**kid_request.dict())
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
 
-        db.add(kid_model)
-        db.commit()
+    parent_model = db.query(Parents).filter(Parents.id == kid_request.parent_id).first()
+    if parent_model is None:
+        print("string")
+        raise HTTPException(status_code=404, detail='Parent not found.')
+    kid_model = Kids(**kid_request.dict())
 
-        return kid_model
-    except HTTPException as e:
-        raise HTTPException(status_code=500, detail=f"Something went wrong {e}")
+    db.add(kid_model)
+    db.commit()
+
+    return kid_model
 
 
 @router.put("/{kid_id}", response_model=GetKid, status_code=status.HTTP_200_OK)

@@ -13,3 +13,11 @@ class BaseParent(BaseModel):
 
 class GetParent(BaseParent):
     id: Optional[int] = None
+
+
+class CreateParent(BaseParent):
+    pass
+
+
+class UpdateParent(BaseParent):
+    kid_id: int = None

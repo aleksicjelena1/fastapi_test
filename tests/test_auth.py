@@ -40,20 +40,20 @@ def test_create_access_token():
     assert decoded_token['role'] == role
 
 
-async def test_get_current_user_valid_token():
+def test_get_current_user_valid_token():
     encode = {'sub': 'testuser', 'id': 1, 'role': 'admin'}
     token = jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
-    user = await get_current_user(token=token)
+    user = get_current_user(token=token)
     assert user == {'username': 'testuser', 'id': 1, 'user_role': 'admin'}
 
 
-async def test_get_current_user_missing_payload():
+def test_get_current_user_missing_payload():
     encode = {'role': 'user'}
     token = jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
     with pytest.raises(HTTPException) as excinfo:
-        await get_current_user(token=token)
+        get_current_user(token=token)
 
     assert excinfo.value.status_code == 401
     assert excinfo.value.detail == 'Could not validate user.'

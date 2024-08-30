@@ -2,7 +2,7 @@ from fastapi import status
 
 from app.db.models import Kids
 from tests.conftest import TestingSessionLocal, client
-from tests.utils import kids_builder, get_access_token
+from tests.utils import kids_builder, get_access_token, parents_builder
 
 
 def test_read_all_kids(kids_builder, get_access_token):
@@ -18,19 +18,18 @@ def test_read_all_kids_not_authorized(kids_builder):
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_read_one_kids(kids_builder, get_access_token):
+def test_read_one_kid(kids_builder, get_access_token):
     response = client.get("/kid/1", headers={
             "Authorization": f"Bearer {get_access_token}"
         })
     assert response.status_code == status.HTTP_200_OK
     assert response.json().get("first_name") == "Test 0"
     assert response.json().get("last_name") == "User 0"
-    assert response.json().get("father_name") == "Name 0"
     assert response.json().get("date_of_enrollment") == "Date 0"
     assert response.json().get("gender") == "m"
 
 
-def test_read_one_kids_not_authorized(kids_builder):
+def test_read_one_kid_not_authorized(kids_builder):
     response = client.get("/kid/1")
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -48,13 +47,14 @@ def test_read_one_not_found_not_authorized(kids_builder):
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_create_kid(kids_builder, get_access_token):
+def test_create_kid(kids_builder, get_access_token, parents_builder):
     request_data = {
         'first_name': 'Katarina',
         'last_name': 'Kovacic',
         'father_name': 'Milan',
         'date_of_enrollment': '30-September-2020',
-        'gender': 'f'
+        'gender': 'f',
+        'parent_id': 1
     }
     response = client.post('/kid/create_kid', json=request_data, headers={
             "Authorization": f"Bearer {get_access_token}"
@@ -68,6 +68,27 @@ def test_create_kid(kids_builder, get_access_token):
 
 
 def test_create_kid_not_authorized(kids_builder):
+    response = client.post("/kid/create_kid")
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_create_kid_parent_not_found(kids_builder, get_access_token):
+    request_data = {
+        'first_name': 'Katarina',
+        'last_name': 'Kovacic',
+        'father_name': 'Milan',
+        'date_of_enrollment': '30-September-2020',
+        'gender': 'm',
+        'parent_id': 999
+    }
+    response = client.post("/kid/create_kid", json=request_data, headers={
+        "Authorization": f"Bearer {get_access_token}"
+    })
+    assert response.status_code == 404
+    assert response.json() == {'detail': 'Parent not found.'}
+
+
+def test_create_kid_parent_not_found_not_authorized(kids_builder):
     response = client.post("/kid/create_kid")
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 

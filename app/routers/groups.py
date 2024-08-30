@@ -24,9 +24,7 @@ async def read_all_groups(user: user_dependency, db: db_dependency):
         raise HTTPException(status_code=401, detail='Authentication Failed.')
     list_groups = []
     db_groups = db.query(Groups).all()
-    # dobijamo listu tabele Groups db_groups = [ id=1, name=Bubamarice, id=2, name=Tigrici ...]
     for group in db_groups:
-        # group = id = 1, name = Bubamarice
         employee = db.query(Employees).filter(Employees.group_id == group.id).first()
         kids_list = db.query(Kids).filter(Kids.group_id == group.id).all()
         group_schema = GetGroup(

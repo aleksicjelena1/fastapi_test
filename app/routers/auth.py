@@ -9,14 +9,20 @@ from app.schemas.users import CreateUserRequest, Token
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
+from dotenv import load_dotenv
+import os
+
+# Load the .env file
+load_dotenv()
+
+# Access environment variables
+SECRET_KEY = os.getenv('SECRET_KEY')
+ALGORITHM = os.getenv('ALGORITHM')
 
 router = APIRouter(
     prefix="/auth",
     tags=["auth"]
 )
-
-SECRET_KEY = '542e6b4712536f3b25a966508f5140cbf4611f3dd6049486c04b5c50179817d7'
-ALGORITHM = 'HS256'
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
